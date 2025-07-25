@@ -154,7 +154,11 @@ class NbpRatesService
 
     private function fetchRateFromAirtable(string $currency, string $date): ?float
     {
+        // Upewnij się, że data jest w formacie Y-m-d (string)
+        $date = (new \DateTimeImmutable($date))->format('Y-m-d');
+        $currency = strtoupper($currency);
         $url = self::AIRTABLE_API_URL . $this->airtableBaseId . "/" . $this->airtableTable;
+        // Filtr po dokładnym stringu (oba pola tekstowe)
         $filter = sprintf("AND({Currency} = '%s', {Date} = '%s')", $currency, $date);
         $params = http_build_query([
             'filterByFormula' => $filter,
@@ -166,6 +170,7 @@ class NbpRatesService
             ],
         ]);
         $data = $response->toArray(false);
+        error_log("[Airtable] fetchRateFromAirtable: currency={$currency}, date={$date}, filter={$filter}, response=" . var_export($data, true));
         if (!empty($data['records'][0]['fields']['Mid'])) {
             return (float)$data['records'][0]['fields']['Mid'];
         }
@@ -174,8 +179,13 @@ class NbpRatesService
 
     private function fetchRatesHistoryFromAirtable(string $currency, string $startDate, string $endDate): array
     {
+        // Upewnij się, że daty są w formacie Y-m-d (string)
+        $startDate = (new \DateTimeImmutable($startDate))->format('Y-m-d');
+        $endDate = (new \DateTimeImmutable($endDate))->format('Y-m-d');
+        $currency = strtoupper($currency);
         $url = self::AIRTABLE_API_URL . $this->airtableBaseId . "/" . $this->airtableTable;
-        $filter = sprintf("AND({Currency} = '%s', IS_AFTER({Date}, '%s'), IS_BEFORE({Date}, '%s'))", $currency, (new \DateTimeImmutable($startDate))->modify('-1 day')->format('Y-m-d'), (new \DateTimeImmutable($endDate))->modify('+1 day')->format('Y-m-d'));
+        // Filtr po stringach: {Currency} = 'USD' AND {Date} >= '2024-06-01' AND {Date} <= '2024-06-30'
+        $filter = sprintf("AND({Currency} = '%s', {Date} >= '%s', {Date} <= '%s')", $currency, $startDate, $endDate);
         $params = http_build_query([
             'filterByFormula' => $filter,
             'maxRecords' => 100,
@@ -203,11 +213,14 @@ class NbpRatesService
 
     private function fetchRatesHistoryFromAirtableBatch(array $currencies, string $startDate, string $endDate): array
     {
+        // Upewnij się, że daty są w formacie Y-m-d (string)
+        $startDate = (new \DateTimeImmutable($startDate))->format('Y-m-d');
+        $endDate = (new \DateTimeImmutable($endDate))->format('Y-m-d');
+        $currencies = array_map('strtoupper', $currencies);
         $url = self::AIRTABLE_API_URL . $this->airtableBaseId . "/" . $this->airtableTable;
-        $currencyFilter = implode(',', array_map(fn($c) => "'{$c}'", $currencies));
-        $filter = "AND(FIND({Currency}, '" . implode(",", $currencies) . "'), IS_AFTER({Date}, '$startDate'), IS_BEFORE({Date}, '$endDate'))";
-        // Możesz też użyć OR({Currency}='USD', {Currency}='EUR', ...)
-        // lub po prostu pobrać wszystkie i przefiltrować w PHP jeśli walut jest mało
+        // Filtr po stringach: OR({Currency}='USD', {Currency}='EUR', ...) AND {Date} >= '2024-06-01' AND {Date} <= '2024-06-30'
+        $orParts = array_map(fn($c) => sprintf("{Currency} = '%s'", $c), $currencies);
+        $filter = sprintf("AND(OR(%s), {Date} >= '%s', {Date} <= '%s')", implode(",", $orParts), $startDate, $endDate);
         $params = http_build_query([
             'filterByFormula' => $filter,
             'maxRecords' => 100,
@@ -339,24 +352,29 @@ class NbpRatesService
         $url = self::AIRTABLE_API_URL . $this->airtableBaseId . "/" . $this->airtableTable;
         $records = [];
         foreach ($rates as $rate) {
-            $records[] = [
-                'fields' => [
-                    'Currency' => $currency,
-                    'Date' => $rate['date'],
-                    'Mid' => $rate['mid'],
-                ]
-            ];
+            // Sprawdź, czy rekord już istnieje (po walucie i dacie)
+            if ($this->fetchRateFromAirtable($currency, $rate['date']) === null) {
+                $records[] = [
+                    'fields' => [
+                        'Currency' => $currency,
+                        'Date' => $rate['date'],
+                        'Mid' => $rate['mid'],
+                    ]
+                ];
+            }
         }
         // Airtable API allows up to 10 records per batch request
         $chunks = array_chunk($records, 10);
         foreach ($chunks as $chunk) {
-            $this->httpClient->request('POST', $url, [
-                'headers' => [
-                    'Authorization' => 'Bearer ' . $this->airtableApiKey,
-                    'Content-Type' => 'application/json',
-                ],
-                'json' => ['records' => $chunk],
-            ]);
+            if (!empty($chunk)) {
+                $this->httpClient->request('POST', $url, [
+                    'headers' => [
+                        'Authorization' => 'Bearer ' . $this->airtableApiKey,
+                        'Content-Type' => 'application/json',
+                    ],
+                    'json' => ['records' => $chunk],
+                ]);
+            }
         }
     }
 
