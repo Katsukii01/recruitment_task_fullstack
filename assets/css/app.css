@@ -1,3 +1,255 @@
 body {
-    background-color: lightgray;
+  background: #181c24;
+  color: #f3f3f3;
+  font-family: 'Segoe UI', 'Roboto', Arial, sans-serif;
+}
+
+/* Flag Style */
+.flag {
+  width: 3rem;
+  height: 2rem;
+  margin-right: 12px;
+  border-radius: 6px;
+  padding: 2px;
+  object-fit: cover;
+  background-color: #fff;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+}
+
+.currency-card {
+  background-color: #23283a;
+  color: #ffffff;
+  border-radius: 18px;
+  box-shadow:
+    0 2px 16px rgba(0, 0, 0, 0.18),
+    0 0 10px rgba(0, 0, 0, 0.4); 
+  padding: 1rem 1.2rem;
+  margin: 0.5rem 0;
+  min-width: 290px;
+  max-width: 320px;
+  min-height: 180px;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  position: relative; 
+  padding-bottom: 3.5rem; 
+}
+
+.currency-card:hover {
+  transform: scale(1.02);
+  box-shadow:
+    0 4px 20px rgba(0, 0, 0, 0.25),
+    0 0 12px rgba(0, 0, 0, 0.5); 
+}
+
+/* Box Base Style */
+.rate-box {
+  border-radius: 10px;
+  padding: 0.8rem;
+  width: 100%;
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 0.5rem;
+  font-weight: 500;
+  text-shadow: 0 0 4px #000;
+  border: 1px solid;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.icon {
+  width: 1.4em;
+  height: 1.4em;
+  display: inline-block;
+  filter: drop-shadow(0 0 3px currentColor);
+}
+
+/* Specific Colors */
+.rate-box {
+  --accent-color: #4caf50; /* domyślnie na zielono */
+  border: 1px solid var(--accent-color);
+  color: var(--accent-color);
+  transition: all 0.3s ease;
+  /* inne style... */
+}
+
+.rate-box.buy {
+  --accent-color: #4caf50;
+}
+
+.rate-box.sell {
+  --accent-color: #e53935;
+}
+
+.rate-box.nbp {
+  --accent-color: #2196f3;
+}
+
+.rate-box:hover {
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+.currency-header {
+  display: flex;
+  align-items: center;
+  font-size: 1.3rem;
+  margin-bottom: 0.7rem;
+}
+.currency-flag {
+  font-size: 2.1rem;
+  margin-right: 0.7rem;
+}
+.currency-code {
+  font-weight: bold;
+  letter-spacing: 1px;
+}
+.currency-body {
+  font-size: 1.1rem;
+  margin-bottom: 0.7rem;
+}
+
+.btn-outline-info {
+  display: flex;
+  justify-content: end;
+  border-radius: 8px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+}
+
+.history-btn {
+  position: absolute;
+  bottom: 1rem;
+  right: 1rem;
+}
+
+/* Modal */
+.modal-backdrop {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(24,28,36,0.92);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-content {
+  background: #23283a;
+  border-radius: 18px;
+  padding: 2rem 1.5rem 1.2rem 1.5rem;
+  min-width: 320px;
+  max-width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.38);
+  position: relative;
+  color: #f3f3f3;
+}
+.modal-content .close {
+  position: absolute;
+  top: 1rem;
+  right: 1.2rem;
+  background: none;
+  border: none;
+  color: #e53935;
+  font-size: 2rem;
+  cursor: pointer;
+}
+
+.table {
+  background: #23283a;
+  color: #f3f3f3;
+}
+.table th, .table td {
+  border-color: #2c3142;
+}
+
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #23283a;
+  color: #f3f3f3;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  text-align: center; /* wyśrodkowanie tekstu w komórkach */
+}
+
+.table th,
+.table td {
+  padding: 0.6rem 0.8rem;
+  vertical-align: middle; /* wyrównanie pionowe do środka */
+  border: 1px solid #2c3142;
+  font-weight: 500;
+}
+
+.table thead th {
+  font-size: 1.1rem;
+  letter-spacing: 0.5px;
+  user-select: none;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.th-content {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.table tbody tr:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: background-color 0.3s ease;
+}
+
+/* Kolory nagłówków */
+.table thead th:nth-child(2) {
+  color: #4caf50;
+}
+.table thead th:nth-child(3) {
+  color: #e53935;
+}
+.table thead th:nth-child(4) {
+  color: #2196f3;
+}
+
+/* Kolory komórek danych */
+.table tbody td:nth-child(2) {
+  color: #4caf50;
+  font-weight: 600;
+}
+.table tbody td:nth-child(3) {
+  color: #e53935;
+  font-weight: 600;
+}
+.table tbody td:nth-child(4) {
+  color: #2196f3;
+  font-weight: 600;
+}
+
+/* Drobne przesunięcie ikon w nagłówkach */
+.table thead th svg {
+  vertical-align: middle;
+  margin-right: 6px;
+  height: 1.2em;
+  width: 1.2em;
+  filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.5));
+}
+
+.live-clock {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 20px;
+  color: #00ffc3;
+  font-family: monospace;
+  font-size: 1.25rem;
+  text-shadow: 0 0 6px #00ffc3;
+  box-shadow: 0 0 10px rgba(0, 255, 195, 0.3);
+  letter-spacing: 1px;
+  transition: all 0.3s ease-in-out;
 }

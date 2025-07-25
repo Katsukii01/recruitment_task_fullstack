@@ -16,7 +16,7 @@
     "scripts": {
         "dev-server": "encore dev-server",
         "dev": "encore dev",
-        "watch": "WATCHPACK_POLLING=true encore dev --watch",
+        "watch": "set WATCHPACK_POLLING=true && encore dev --watch",
         "build": "encore production --progress"
     },
     "dependencies": {
